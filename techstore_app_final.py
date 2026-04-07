@@ -1,3 +1,5 @@
+st.caption("Proyecto final de Machine Learning y Analítica - TechStore")
+
 import streamlit as st
 import pandas as pd
 import numpy as np
