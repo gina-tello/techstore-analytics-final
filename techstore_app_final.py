@@ -1,1 +1,67 @@
-{"nbformat":4,"nbformat_minor":0,"metadata":{"colab":{"provenance":[],"authorship_tag":"ABX9TyM3eYmOwUKgsoutViUzNPjA"},"kernelspec":{"name":"python3","display_name":"Python 3"},"language_info":{"name":"python"}},"cells":[{"cell_type":"code","execution_count":null,"metadata":{"id":"lkcqBU5_OTkn"},"outputs":[],"source":["import streamlit as st\n","import pandas as pd\n","import numpy as np\n","\n","st.set_page_config(page_title=\"TechStore Analytics\", layout=\"wide\")\n","\n","st.title(\"📊 TechStore Analytics Dashboard\")\n","st.markdown(\"Sistema final de analítica, predicción y segmentación para TechStore\")\n","\n","# Cargar datos\n","@st.cache_data\n","def cargar_datos():\n","    ventas = pd.read_csv(\"ventas_historicas.csv\")\n","    clientes = pd.read_csv(\"clientes_segmentados.csv\")\n","    return ventas, clientes\n","\n","ventas, clientes = cargar_datos()\n","\n","# KPIs\n","clientes_totales = len(clientes)\n","ventas_promedio = ventas[\"ventas\"].mean()\n","elasticidad = 0.37876067728294854\n","\n","col1, col2, col3 = st.columns(3)\n","col1.metric(\"Clientes totales\", f\"{clientes_totales:,}\")\n","col2.metric(\"Ventas promedio\", f\"{ventas_promedio:,.2f}\")\n","col3.metric(\"Elasticidad\", f\"{elasticidad:.2f}\")\n","\n","st.divider()\n","\n","# Ventas históricas\n","st.subheader(\"Ventas históricas\")\n","if \"fecha\" in ventas.columns:\n","    ventas[\"fecha\"] = pd.to_datetime(ventas[\"fecha\"], errors=\"coerce\")\n","    ventas_ordenadas = ventas.sort_values(\"fecha\")\n","    st.line_chart(ventas_ordenadas.set_index(\"fecha\")[\"ventas\"])\n","else:\n","    st.line_chart(ventas[\"ventas\"])\n","\n","st.divider()\n","\n","# Distribución de ventas\n","st.subheader(\"Distribución de ventas\")\n","st.bar_chart(ventas[\"ventas\"])\n","\n","st.divider()\n","\n","# Segmentación de clientes\n","st.subheader(\"Segmentación de clientes\")\n","\n","columnas_numericas = clientes.select_dtypes(include=np.number).columns.tolist()\n","\n","if \"segmento\" in clientes.columns:\n","    st.write(\"Clientes por segmento\")\n","    conteo_segmentos = clientes[\"segmento\"].value_counts()\n","    st.bar_chart(conteo_segmentos)\n","elif len(columnas_numericas) >= 2:\n","    eje_x = columnas_numericas[0]\n","    eje_y = columnas_numericas[1]\n","    st.write(f\"Visualización de {eje_x} vs {eje_y}\")\n","    st.scatter_chart(clientes[[eje_x, eje_y]])\n","else:\n","    st.write(\"No se encontraron columnas suficientes para mostrar la segmentación.\")\n","\n","st.divider()\n","\n","# Insights\n","st.subheader(\"Hallazgos clave\")\n","st.markdown(\"\"\"\n","- Se analizaron **2,000 clientes** dentro del sistema.\n","- El promedio de ventas es de **77,210.78**.\n","- La elasticidad estimada es de **0.38**, lo que sugiere una **baja sensibilidad al precio**.\n","- Esto abre oportunidades para **optimizar precios y mejorar márgenes**.\n","\"\"\")"]}]}
+import streamlit as st
+import pandas as pd
+import numpy as np
+
+st.set_page_config(page_title="TechStore Analytics", layout="wide")
+
+st.title("📊 TechStore Analytics Dashboard")
+st.markdown("Sistema final de analítica, predicción y segmentación para TechStore")
+
+@st.cache_data
+def cargar_datos():
+    ventas = pd.read_csv("ventas_historicas.csv")
+    clientes = pd.read_csv("clientes_segmentados.csv")
+    return ventas, clientes
+
+ventas, clientes = cargar_datos()
+
+clientes_totales = len(clientes)
+ventas_promedio = ventas["ventas"].mean()
+elasticidad = 0.37876067728294854
+
+col1, col2, col3 = st.columns(3)
+col1.metric("Clientes totales", f"{clientes_totales:,}")
+col2.metric("Ventas promedio", f"{ventas_promedio:,.2f}")
+col3.metric("Elasticidad", f"{elasticidad:.2f}")
+
+st.divider()
+
+st.subheader("Ventas históricas")
+if "fecha" in ventas.columns:
+    ventas["fecha"] = pd.to_datetime(ventas["fecha"], errors="coerce")
+    ventas_ordenadas = ventas.sort_values("fecha")
+    st.line_chart(ventas_ordenadas.set_index("fecha")["ventas"])
+else:
+    st.line_chart(ventas["ventas"])
+
+st.divider()
+
+st.subheader("Distribución de ventas")
+st.bar_chart(ventas["ventas"])
+
+st.divider()
+
+st.subheader("Segmentación de clientes")
+columnas_numericas = clientes.select_dtypes(include=np.number).columns.tolist()
+
+if "segmento" in clientes.columns:
+    st.write("Clientes por segmento")
+    conteo_segmentos = clientes["segmento"].value_counts()
+    st.bar_chart(conteo_segmentos)
+elif len(columnas_numericas) >= 2:
+    eje_x = columnas_numericas[0]
+    eje_y = columnas_numericas[1]
+    st.write(f"Visualización de {eje_x} vs {eje_y}")
+    st.scatter_chart(clientes[[eje_x, eje_y]])
+else:
+    st.write("No se encontraron columnas suficientes para mostrar la segmentación.")
+
+st.divider()
+
+st.subheader("Hallazgos clave")
+st.markdown("""
+- Se analizaron **2,000 clientes** dentro del sistema.
+- El promedio de ventas es de **77,210.78**.
+- La elasticidad estimada es de **0.38**, lo que sugiere una **baja sensibilidad al precio**.
+- Esto abre oportunidades para **optimizar precios y mejorar márgenes**.
+""")
